@@ -1,0 +1,161 @@
+---
+# Novel Project Configuration Standard v1.0
+# 小说项目配置文件标准
+# 位置: {项目根目录}/novel-config.yaml
+# 作用: 为所有写作技能提供项目特定的动态配置
+
+project:
+  name: "项目名称"
+  # 项目英文名/ID，用于目录名等
+  id: "project-id"
+  # 项目根目录（绝对路径或相对于novel-config.yaml的路径）
+  root: "."
+  # 项目状态: active / completed / paused
+  status: "active"
+  # 当前卷/进度
+  current_volume: 1
+  # 已完成章节数
+  completed_chapters: 0
+
+# 文件路径配置
+# 所有路径相对于 project.root
+files:
+  # 大纲文件（支持多个，按优先级排序）
+  outlines:
+    - "00-大纲.md"
+  # Truth Files（真相文件，用于防幻觉）
+  truth_files:
+    core: "01-核心设定与角色.md"
+    team: "02-团队成员状态跟踪.md"
+    quest: "03-任务进度跟踪.md"
+    mystery: "04-已揭示谜团与伏笔.md"
+    world: "05-世界观与规则文档.md"
+  # 章节存放目录
+  chapters_dir: "chapters"
+  # 参考文档目录
+  references_dir: "references"
+  # 归档目录
+  archive_dir: "archive"
+  # 创作进度跟踪文件
+  progress_file: "创作进度.md"
+  # 项目梗概
+  synopsis: "synopsis.md"
+
+# 章节命名规范
+naming:
+  # 章节文件命名格式
+  # 可用变量: {chapter_num}, {chapter_title}, {volume_num}
+  chapter_pattern: "第{chapter_num:03d}章-{chapter_title}.md"
+  # 卷目录命名格式（可选）
+  volume_pattern: "第{volume_num}卷"
+
+# 字数标准
+word_count:
+  # 底线（阻断）: 低于此字数禁止进入结算
+  min: 3000
+  # 合格线
+  pass: 3500
+  # 目标区间
+  target_min: 3500
+  target_max: 4500
+  # 优秀线
+  excellent: 4500
+
+# 叙事规范
+narrative:
+  # 叙述人称: third_person / first_person
+  pov: "third_person"
+  # 禁止使用的叙述人称词（正则列表）
+  pov_forbidden_patterns:
+    - "^(?!.*[\"']).*我.*"
+  # 三线命名和配置
+  strands:
+    - name: "Quest"
+      label: "主线"
+      description: "核心任务、升级、战斗、夺宝"
+      ratio: "55-65%"
+      # 连续章节上限警告
+      max_consecutive: 5
+    - name: "Fire"
+      label: "感情线"
+      description: "情感关系发展"
+      ratio: "20-30%"
+      # 断档章节上限警告
+      max_gap: 10
+    - name: "Constellation"
+      label: "世界观线"
+      description: "扩展设定、展示新势力"
+      ratio: "10-20%"
+      max_gap: 15
+
+# 角色配置（用于一致性检查）
+characters:
+  # 主角
+  protagonist:
+    name: "主角名"
+    # 角色ID（用于脚本引用）
+    id: "protagonist"
+    # 特殊状态检查规则
+    checks:
+      # 示例: 失明角色不能"看见"
+      - type: "vision"
+        description: "失明状态视觉检查"
+        forbidden_verbs: ["看见", "看到", "望着", "注视", "盯", "瞧", "瞄", "视线落在", "目光落在"]
+        # 排除模式（他人视角、姿态描写等）
+        exclude_patterns:
+          - "灰白色的眼瞳.*望"
+          - ".*看到.*他.*"
+  # 团队成员
+  team:
+    - name: "队友A"
+      id: "teammate_a"
+      checks: []
+  # 已死亡/离开的角色（禁止出现）
+  absent:
+    - name: "已死亡角色"
+      id: "dead_char"
+      reason: "death"
+      last_chapter: 100
+  # 反派
+  antagonists: []
+
+# 专有名词（用于检查脚本的白名单）
+terminology:
+  # 合法的英文专有名词
+  allowed_english:
+    - "BUG"
+  # 合法的繁体字（小说设定中的）
+  allowed_traditional: []
+  # 角色名列表（用于检查混淆）
+  character_names: []
+
+# Anti-AI 写作规范（项目级别覆盖）
+anti_ai:
+  # 万能副词阈值（每500字允许出现次数）
+  adverb_threshold: 1
+  # 情绪标签阈值（每章允许出现次数）
+  emotion_label_threshold: 2
+  # 展示后解释阈值（每章允许出现次数）
+  explain_threshold: 2
+  # 句式模板重复上限（每章）
+  template_repeat_limit: 2
+
+# 工作区配置
+workspace:
+  # 主工作区
+  primary: "~/.hermes/workspace/novels/{project.id}"
+  # 备用工作区（如OpenClaw）
+  secondary: ""
+  # 是否自动同步
+  auto_sync: false
+
+# 技能扩展配置
+# 各技能可在此添加自己的配置段
+extensions:
+  # 示例: batch-subagent 的批次大小
+  batch_subagent:
+    chapters_per_batch: 5
+    max_concurrent: 3
+  # 示例: chapter-creation 的情节点数
+  chapter_creation:
+    plot_points_per_chapter: 10
